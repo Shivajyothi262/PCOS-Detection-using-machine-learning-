@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCOS Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="text"], input[type="number"], input[type="float"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<h1>PCOS Detection</h1>
+<form id="pcosForm" method="post" action='/predict'>
+    <label for="age">Enter Your Age:</label>
+    <input type="number" id="age" required>
+
+    <label for="bmi">Enter Your BMI Value:</label>
+    <input type="number" step="0.01" id="bmi" required>
+
+    <label for="cycleLength">Enter Cycle Length (days):</label>
+    <input type="number" id="cycleLength" required>
+
+    <label for="cycleValue">Enter Value of Cycle (R/I):</label>
+    <input type="number" id="cycleValue" required>
+
+    <label for="amh">Enter Value of AMH (ng/mL):</label>
+    <input type="number" step="0.01" id="amh" required>
+
+    <label for="fshlh">Enter Value of FSH/LH:</label>
+    <input type="number" step="0.01" id="fshlh" required>
+
+    <label for="fsh">Enter Value of FSH (mIU/mL):</label>
+    <input type="number" step="0.01" id="fsh" required>
+
+    <label for="weightGain">Enter Value of Weight Gain (Y/N):</label>
+    <input type="text" id="weightGain" required>
+
+    <label for="follicleNoL">Enter Value of Follicle No. (L):</label>
+    <input type="number" id="follicleNoL" required>
+
+    <label for="follicleNoR">Enter Value of Follicle No. (R):</label>
+    <input type="number" id="follicleNoR" required>
+
+    <label for="avgFollicleSize">Enter Value of Avg. F Size (L) (mm):</label>
+    <input type="number" step="0.01" id="avgFollicleSize" required>
+
+    <input type="submit" value="Check for PCOS">
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('pcosForm').onsubmit = async function(event) {
+    event.preventDefault(); // Prevent the form from submitting the traditional way
+
+    // Collect input values
+    const age = document.getElementById('age').value;
+    const bmi = document.getElementById('bmi').value;
+    const cycleLength = document.getElementById('cycleLength').value;
+    const cycleValue = document.getElementById('cycleValue').value;
+    const amh = document.getElementById('amh').value;
+    const fshlh = document.getElementById('fshlh').value;
+    const fsh = document.getElementById('fsh').value;
+    const weightGain = document.getElementById('weightGain').value.toUpperCase() === 'Y' ? 1 : 0;
+    const follicleNoL = document.getElementById('follicleNoL').value;
+    const follicleNoR = document.getElementById('follicleNoR').value;
+    const avgFollicleSize = document.getElementById('avgFollicleSize').value;
+
+    // Prepare data for sending to the backend
+    const data = {
+        age: parseInt(age),
+        bmi: parseFloat(bmi),
+        cycleLength: parseInt(cycleLength),
+        cycleValue: parseInt(cycleValue),
+        amh: parseFloat(amh),
+        fshlh: parseFloat(fshlh),
+        fsh: parseFloat(fsh),
+        weightGain: weightGain,
+        follicleNoL: parseInt(follicleNoL),
+        follicleNoR: parseInt(follicleNoR),
+        avgFollicleSize: parseFloat(avgFollicleSize)
+    };
+
+    console.log("Data to be sent:", data);  // Log the data being sent
+
+    // Send data to the backend for prediction
+    const response = await fetch('/predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    document.getElementById('result').innerText = result.message || result.error;
+};
+    </script>
+</body>
+</html>
